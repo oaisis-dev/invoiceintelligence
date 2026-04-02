@@ -1,0 +1,21 @@
+{
+  "name": "@invoiceprocessor/worker-invoice",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "bun run --hot src/index.ts",
+    "start": "bun run src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write ."
+  },
+  "dependencies": {
+    "@google-cloud/pubsub": "^4.9.0",
+    "@google-cloud/storage": "^7.15.0",
+    "@invoiceprocessor/shared": "workspace:*",
+    "hono": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  }
+}
