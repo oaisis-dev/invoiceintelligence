@@ -24,8 +24,12 @@ import { transactionsRouter } from "./transactions";
 import { transcriptionRouter } from "./transcription";
 import { usersRouter } from "./users";
 import { webhookRouter } from "./webhooks";
+import { invoiceProcessorRouter } from "./invoice-processor";
 
 const routers = new OpenAPIHono();
+
+// Mount InvoiceProcessor routes (has its own auth middleware)
+routers.route("/ip", invoiceProcessorRouter);
 
 // Mount public routes first
 routers.route("/oauth", oauthRouter);
