@@ -4,13 +4,10 @@ WORKDIR /app
 # Copy workspace config
 COPY package.json bun.lock* turbo.json ./
 COPY packages/ ./packages/
-COPY apps/api/ ./apps/api/
+COPY apps/worker-email/ ./apps/worker-email/
 
 # Install dependencies
 RUN bun install --frozen-lockfile
 
-# Expose port
-EXPOSE 8080
-
-# Start the service
-CMD ["bun", "run", "apps/api/src/index.ts"]
+# Start the service (cron job — no HTTP server)
+CMD ["bun", "run", "apps/worker-email/src/index.ts"]

@@ -4,7 +4,7 @@ WORKDIR /app
 # Copy workspace config
 COPY package.json bun.lock* turbo.json ./
 COPY packages/ ./packages/
-COPY apps/api/ ./apps/api/
+COPY apps/dispatcher/ ./apps/dispatcher/
 
 # Install dependencies
 RUN bun install --frozen-lockfile
@@ -13,4 +13,4 @@ RUN bun install --frozen-lockfile
 EXPOSE 8080
 
 # Start the service
-CMD ["bun", "run", "apps/api/src/index.ts"]
+CMD ["bun", "run", "apps/dispatcher/src/index.ts"]

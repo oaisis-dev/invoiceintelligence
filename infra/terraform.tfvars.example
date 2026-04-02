@@ -1,0 +1,67 @@
+# Environment-specific tfvars
+#
+# Two files are used (both gitignored):
+#   terraform.tfvars  — production values (auto-loaded by terraform)
+#   staging.tfvars    — staging values (pass via -var-file=staging.tfvars)
+#
+# Usage:
+#   # Production (terraform.tfvars auto-loads)
+#   terraform init -backend-config="prefix=terraform/production"
+#   terraform plan
+#   terraform apply
+#
+#   # Staging
+#   terraform init -backend-config="prefix=terraform/staging" -reconfigure
+#   terraform plan  -var-file=staging.tfvars
+#   terraform apply -var-file=staging.tfvars
+
+project_id        = "gen-lang-client-0217982473"
+region            = "us-central1"
+environment       = "production"  # or "staging"
+gcs_bucket_name   = "invoices"
+pubsub_topic_name = "invoice-processing-prod"
+github_repo       = "your-org/invoice-intelligence"
+
+# Scaling (lower for staging to reduce cost)
+max_instances_worker   = 5   # staging: 2
+max_instances_frontend = 3   # staging: 1
+max_instances_default  = 3   # staging: 1
+
+# Secrets
+supabase_url              = "https://your-project.supabase.co"
+supabase_secret_key = "eyJ..."
+gemini_api_key            = "AIza..."
+
+# Frontend — Clerk
+clerk_secret_key          = "sk_live_..."
+clerk_webhook_secret = "whsec_..."
+clerk_publishable_key     = "pk_live_..."
+clerk_domain              = "clerk.yourdomain.com"
+supabase_publishable_key         = "eyJ..."
+
+# Email OAuth
+google_oauth_client_id     = "your-client-id.apps.googleusercontent.com"
+google_oauth_client_secret = "GOCSPX-..."
+email_token_encryption_key = "64-hex-char-aes256-key"
+app_url                    = "https://invoice.yourdomain.com"
+
+# Billing / Stripe
+stripe_secret_key      = "sk_live_..."
+stripe_webhook_secret  = "whsec_..."
+stripe_publishable_key = "pk_live_..."
+payment_provider       = "stripe"
+
+# Admin Dashboard
+google_oauth_admin_client_id = "your-admin-client-id.apps.googleusercontent.com"
+admin_auth_secret            = "base64-encoded-256-bit-secret"
+
+# Notification Dispatcher / Brevo
+email_provider     = "console"  # or "brevo"
+brevo_api_key      = "placeholder"
+brevo_sender_email = "noreply@yourdomain.com"
+
+# Backend API
+backend_api_url = "https://backend-api-xxxxx.a.run.app"
+
+# Chat Agent
+chat_agent_url = "https://invoice-chat-agent-xxxxx.a.run.app"
