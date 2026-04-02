@@ -1,0 +1,127 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "../styles/design-tokens.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  /* ── Colors mapped from design tokens ─────────── */
+  --color-background: var(--bg-page);
+  --color-foreground: var(--text-primary);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-geist-mono);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-10: var(--primary-10);
+  --color-primary-05: var(--primary-05);
+
+  --color-secondary: #f1f5f3;
+  --color-secondary-foreground: var(--text-primary);
+
+  --color-muted: #f1f5f3;
+  --color-muted-foreground: var(--text-secondary);
+
+  --color-accent: var(--primary-10);
+  --color-accent-foreground: var(--primary);
+
+  --color-destructive: var(--error);
+
+  --color-card: var(--bg-card);
+  --color-card-foreground: var(--text-primary);
+  --color-card-border: var(--bg-card-border);
+
+  --color-popover: #ffffff;
+  --color-popover-foreground: var(--text-primary);
+
+  --color-border: var(--border-input);
+  --color-input: var(--bg-input);
+  --color-ring: var(--primary);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+
+  --color-bg-page: var(--bg-page);
+  --color-bg-card: var(--bg-card);
+  --color-bg-sidebar: var(--bg-sidebar);
+  --color-bg-header: var(--bg-header);
+  --color-bg-input: var(--bg-input);
+
+  --color-success: var(--success);
+  --color-success-10: var(--success-10);
+  --color-warning: var(--warning);
+  --color-warning-10: var(--warning-10);
+  --color-error: var(--error);
+  --color-error-10: var(--error-10);
+
+  --color-border-glass: var(--border-glass);
+  --color-border-input: var(--border-input);
+  --color-border-table: var(--border-table);
+
+  /* ── Sidebar ──────────────────────────────────── */
+  --color-sidebar: var(--bg-sidebar);
+  --color-sidebar-foreground: var(--text-primary);
+  --color-sidebar-primary: var(--primary);
+  --color-sidebar-primary-foreground: var(--primary-foreground);
+  --color-sidebar-accent: var(--primary-10);
+  --color-sidebar-accent-foreground: var(--primary);
+  --color-sidebar-border: var(--border-glass);
+  --color-sidebar-ring: var(--primary);
+
+  /* ── Charts ───────────────────────────────────── */
+  --color-chart-1: #27653d;
+  --color-chart-2: #2d9960;
+  --color-chart-3: #6b7c73;
+  --color-chart-4: #3bb574;
+  --color-chart-5: #1a5a36;
+
+  /* ── Landing page brand colors ────────────────── */
+  --color-brand-50: #edfff3;
+  --color-brand-100: #d5ffea;
+  --color-brand-200: #aeffd6;
+  --color-brand-300: #72ffb4;
+  --color-brand-400: #2ffb8a;
+  --color-brand-500: #00e06a;
+  --color-brand-600: #00b955;
+  --color-brand-700: #27653D;
+  --color-brand-800: #1e5031;
+  --color-brand-900: #19422a;
+
+  /* ── Border Radius ────────────────────────────── */
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-3xl: 28px;
+  --radius-4xl: 32px;
+
+  /* ── Shadows ──────────────────────────────────── */
+  --shadow-card: var(--shadow-card);
+  --shadow-button: var(--shadow-button);
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  .dark {
+    color-scheme: dark;
+  }
+
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  .skip-link {
+    @apply sr-only;
+  }
+
+  .skip-link:focus-visible {
+    @apply not-sr-only fixed left-4 top-4 z-50 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground shadow-md outline-none ring-2 ring-ring ring-offset-2;
+  }
+}

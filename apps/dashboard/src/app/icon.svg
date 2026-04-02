@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 72">
+  <defs>
+    <mask id="m" x="-2" y="0" width="56" height="76" maskUnits="userSpaceOnUse">
+      <g>
+        <rect x="-2" width="56" height="76" fill="#fff"/>
+        <path d="M26,24c2,12,6,16,18,18-12,2-16,6-18,18-2-12-6-16-18-18,12-2,16-6,18-18Z"/>
+      </g>
+    </mask>
+  </defs>
+  <g mask="url(#m)">
+    <path d="M2,10c0-3.866,3.134-7,7-7h21l18,18v41c0,3.866-3.134,7-7,7H9c-3.866,0-7-3.134-7-7V10Z" fill="#27653d"/>
+    <path d="M30,3v12c0,3.314,2.686,6,6,6h12L30,3Z" fill="#1e5030"/>
+  </g>
+</svg>

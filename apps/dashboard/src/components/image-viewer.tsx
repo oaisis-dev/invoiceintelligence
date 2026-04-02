@@ -1,76 +1,61 @@
 "use client";
 
-import { cn } from "@midday/ui/cn";
-import { Icons } from "@midday/ui/icons";
-import { Skeleton } from "@midday/ui/skeleton";
-import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
-import { useImageLoadState } from "@/hooks/use-image-load-state";
+import { useState } from "react";
+import Image from "next/image";
+import { ImageIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-function ErrorImage() {
-  return (
-    <div className="w-full h-full flex items-center justify-center">
-      <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
-        <Icons.BrokenImage className="size-8" />
-        <p className="text-sm">File not found</p>
-      </div>
-    </div>
-  );
+interface ImageViewerProps {
+  fileUrl: string | null;
+  className?: string;
 }
 
-export function ImageViewer({ url }: { url: string }) {
-  const { isLoading, isError, imgRef, handleLoad, handleError } =
-    useImageLoadState(url);
+export function ImageViewer({ fileUrl, className }: ImageViewerProps) {
+  const [hasError, setHasError] = useState(false);
 
-  if (!url) return <ErrorImage />;
+  if (!fileUrl) {
+    return (
+      <div className={cn("flex flex-col gap-4", className)}>
+        <div className="flex aspect-[8.5/11] w-full items-center justify-center rounded-lg border border-dashed border-muted-foreground/25 bg-muted/30">
+          <div className="flex flex-col items-center gap-2 text-muted-foreground">
+            <ImageIcon className="size-12 opacity-40" aria-hidden="true" />
+            <p className="text-sm font-medium">No image available</p>
+            <p className="text-xs">The original document image is not available.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (hasError) {
+    return (
+      <div className={cn("flex flex-col gap-4", className)}>
+        <div className="flex aspect-[8.5/11] w-full items-center justify-center rounded-lg border border-dashed border-destructive/25 bg-destructive/5">
+          <div className="flex flex-col items-center gap-2 text-destructive">
+            <ImageIcon className="size-12 opacity-40" aria-hidden="true" />
+            <p className="text-sm font-medium">Failed to load image</p>
+            <p className="text-xs text-muted-foreground">
+              The document image could not be loaded. It may be missing or corrupted.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="relative flex h-full w-full items-center justify-center bg-primary/10">
-      {isLoading && !isError && (
-        <Skeleton className="absolute inset-0 h-full w-full" />
-      )}
-
-      {isError && <ErrorImage />}
-
-      {!isError && (
-        <TransformWrapper
-          initialScale={1}
-          minScale={1}
-          maxScale={2}
-          doubleClick={{ mode: "toggle", step: 1 }}
-          panning={{ disabled: false }}
-          wheel={{ wheelDisabled: true, touchPadDisabled: false, step: 0.5 }}
-          pinch={{ step: 5 }}
-          alignmentAnimation={{ sizeX: 0, sizeY: 0 }}
-        >
-          <TransformComponent
-            wrapperStyle={{
-              width: "100%",
-              height: "100%",
-            }}
-            contentStyle={{
-              cursor: "grab",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: "100%",
-              height: "100%",
-            }}
-            wrapperClass="[&:active]:cursor-grabbing"
-          >
-            <img
-              ref={imgRef}
-              src={url}
-              alt="Viewer content"
-              className={cn(
-                "max-h-full max-w-full object-contain",
-                isLoading ? "opacity-0" : "opacity-100",
-              )}
-              onLoad={handleLoad}
-              onError={handleError}
-            />
-          </TransformComponent>
-        </TransformWrapper>
-      )}
+    <div className={cn("flex flex-col gap-4", className)}>
+      <div className="relative overflow-auto rounded-lg border border-border bg-white p-2">
+        <Image
+          src={fileUrl}
+          alt="Original invoice document"
+          width={1200}
+          height={1600}
+          unoptimized
+          className="h-auto max-h-[80vh] w-full object-contain"
+          onError={() => setHasError(true)}
+        />
+      </div>
     </div>
   );
 }

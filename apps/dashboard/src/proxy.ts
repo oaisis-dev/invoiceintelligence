@@ -1,79 +1,54 @@
-import { updateSession } from "@midday/supabase/middleware";
-import { type NextRequest, NextResponse } from "next/server";
-import { createI18nMiddleware } from "next-international/middleware";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-const ORIGIN = process.env.NEXT_PUBLIC_URL || "http://localhost:3001";
+const isPublicRoute = createRouteMatcher([
+  "/",
+  "/sign-in(.*)",
+  "/sign-up(.*)",
+  "/api/webhooks(.*)",
+  "/pricing(.*)",
+  "/api/marketing/(.*)",
+  "/api/billing/plans",
+  "/api/billing/contact",
+]);
 
-const I18nMiddleware = createI18nMiddleware({
-  locales: ["en"],
-  defaultLocale: "en",
-  urlMappingStrategy: "rewrite",
+const clerk = clerkMiddleware(async (auth, request) => {
+  if (!isPublicRoute(request)) {
+    await auth.protect();
+  }
 });
 
-export async function proxy(request: NextRequest) {
-  const { response, isAuthenticated, supabase } = await updateSession(
-    request,
-    I18nMiddleware(request),
-  );
+/**
+ * Next.js 16 proxy.ts runs in Node.js and treats same-origin rewrites as
+ * actual HTTP fetches, causing an infinite loop.  Clerk's `decorateRequest`
+ * converts `NextResponse.next()` into `NextResponse.rewrite(sameOrigin)` to
+ * inject auth headers.  We fix this by converting same-origin rewrites back
+ * to `NextResponse.next()` while preserving all Clerk-injected headers.
+ */
+export default async function proxy(request: NextRequest) {
+  const response = await clerk(request, {} as never);
+  if (!response) return NextResponse.next();
 
-  const nextUrl = request.nextUrl;
-
-  const pathnameLocale = nextUrl.pathname.split("/", 2)?.[1];
-
-  const pathnameWithoutLocale = pathnameLocale
-    ? nextUrl.pathname.slice(pathnameLocale.length + 1)
-    : nextUrl.pathname;
-
-  const newUrl = new URL(pathnameWithoutLocale || "/", ORIGIN);
-
-  const encodedSearchParams = `${newUrl?.pathname?.substring(1)}${
-    newUrl.search
-  }`;
-
-  if (
-    !isAuthenticated &&
-    newUrl.pathname !== "/login" &&
-    !newUrl.pathname.includes("/i/") &&
-    !newUrl.pathname.includes("/p/") &&
-    !newUrl.pathname.includes("/s/") &&
-    !newUrl.pathname.includes("/r/") &&
-    !newUrl.pathname.includes("/verify") &&
-    !newUrl.pathname.includes("/oauth-callback") &&
-    !newUrl.pathname.includes("/desktop/search")
-  ) {
-    const loginUrl = new URL("/login", ORIGIN);
-
-    if (encodedSearchParams) {
-      loginUrl.searchParams.append("return_to", encodedSearchParams);
-    }
-
-    return NextResponse.redirect(loginUrl);
-  }
-
-  if (isAuthenticated) {
-    if (newUrl.pathname !== "/onboarding" && newUrl.pathname !== "/teams") {
-      const inviteCodeMatch = newUrl.pathname.startsWith("/teams/invite/");
-
-      if (inviteCodeMatch) {
-        return NextResponse.redirect(`${ORIGIN}${request.nextUrl.pathname}`);
-      }
-    }
-
-    const { data: mfaData } =
-      await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+  const rewriteHeader = response.headers.get("x-middleware-rewrite");
+  if (rewriteHeader) {
+    const rewriteUrl = new URL(rewriteHeader);
+    const requestUrl = new URL(request.url);
+    // Same-origin + same-path rewrite → convert to passthrough
     if (
-      mfaData &&
-      mfaData.nextLevel === "aal2" &&
-      mfaData.nextLevel !== mfaData.currentLevel &&
-      newUrl.pathname !== "/mfa/verify"
+      rewriteUrl.origin === requestUrl.origin &&
+      rewriteUrl.pathname === requestUrl.pathname
     ) {
-      const mfaUrl = new URL("/mfa/verify", ORIGIN);
-
-      if (encodedSearchParams) {
-        mfaUrl.searchParams.append("return_to", encodedSearchParams);
-      }
-
-      return NextResponse.redirect(mfaUrl);
+      const next = NextResponse.next({
+        request: { headers: new Headers(request.headers) },
+      });
+      // Copy all Clerk-injected headers (auth status, token, etc.)
+      response.headers.forEach((value, key) => {
+        if (key !== "x-middleware-rewrite") {
+          next.headers.set(key, value);
+        }
+      });
+      return next;
     }
   }
 
@@ -81,5 +56,8 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|api).*)"],
+  matcher: [
+    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    "/(api|trpc)(.*)",
+  ],
 };

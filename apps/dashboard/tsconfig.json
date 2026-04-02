@@ -1,22 +1,34 @@
 {
-  "extends": "@midday/tsconfig/nextjs.json",
   "compilerOptions": {
-    "baseUrl": ".",
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
     "paths": {
-      "@/*": ["./src/*"],
-      "@api/*": ["../api/src/*"],
-      "@jobs/*": ["../../packages/jobs/src/*"]
-    },
-    "strict": true
+      "@/*": ["./src/*"]
+    }
   },
   "include": [
+    "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "../../types",
-    "next-env.d.ts",
-    "next.config.js",
-    "tailwind.config.ts",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts",
+    "**/*.mts"
   ],
-  "exclude": ["node_modules", ".next"]
+  "exclude": ["node_modules", "src/test", "**/*.test.ts", "**/*.test.tsx"]
 }

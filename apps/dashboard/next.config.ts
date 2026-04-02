@@ -1,94 +1,64 @@
-import { withSentryConfig } from "@sentry/nextjs";
+import type { NextConfig } from "next";
 
-/** @type {import("next").NextConfig} */
-const config = {
+const clerkDomains = [
+  "https://*.clerk.accounts.dev",
+  "https://*.clerk.accounts.com",
+  "https://clerk.openoaisis.com",
+  "https://accounts.openoaisis.com",
+  "https://challenges.cloudflare.com",
+].join(" ");
+
+const contentSecurityPolicy = [
+  "default-src 'self'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+  `frame-src 'self' ${clerkDomains}`,
+  "img-src 'self' data: blob: https:",
+  "font-src 'self' data:",
+  "style-src 'self' 'unsafe-inline'",
+  `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${clerkDomains} https://www.googletagmanager.com https://www.google-analytics.com https://static.cloudflareinsights.com`,
+  `connect-src 'self' https: wss:`,
+  "worker-src 'self' blob:",
+].join("; ");
+
+const nextConfig: NextConfig = {
   output: "standalone",
-  poweredByHeader: false,
-  reactStrictMode: true,
-
-  // Use git commit SHA as build ID so all multi-region replicas share the same ID.
-  // Without this, each replica generates a different build ID, causing
-  // "Failed to find Server Action" errors when requests hit different replicas.
-  generateBuildId: () => process.env.GIT_COMMIT_SHA || crypto.randomUUID(),
-  deploymentId: process.env.GIT_COMMIT_SHA,
-  experimental: {
-    optimizePackageImports: [
-      "lucide-react",
-      "react-icons",
-      "date-fns",
-      "framer-motion",
-      "recharts",
-      "@dnd-kit/core",
-      "@dnd-kit/sortable",
-      "usehooks-ts",
-    ],
-  },
-  images: {
-    loader: "custom",
-    loaderFile: "./image-loader.ts",
-    qualities: [80, 100],
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "**",
-      },
-    ],
-  },
-  transpilePackages: [
-    "@midday/ui",
-    "@midday/tailwind",
-    "@midday/invoice",
-    "@midday/api",
-  ],
-  serverExternalPackages: ["@react-pdf/renderer", "pino"],
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  devIndicators: false,
   async headers() {
     return [
       {
-        source: "/((?!api/proxy).*)",
+        source: "/:path*",
         headers: [
           {
-            key: "X-Frame-Options",
-            value: "DENY",
+            key: "Content-Security-Policy",
+            value: contentSecurityPolicy,
+          },
+          {
+            key: "X-Content-Type-Options",
+            value: "nosniff",
+          },
+          {
+            key: "Referrer-Policy",
+            value: "strict-origin-when-cross-origin",
+          },
+          {
+            key: "Permissions-Policy",
+            value:
+              "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
           },
         ],
       },
     ];
   },
+  async redirects() {
+    return [
+      {
+        source: "/pricing",
+        destination: "/#pricing",
+        permanent: true,
+      },
+    ];
+  },
 };
 
-// Only apply Sentry configuration in production
-const isProduction = process.env.NODE_ENV === "production";
-
-// Resolve the release tag: prefer explicit SENTRY_RELEASE, fall back to the git SHA.
-// Coerce empty strings to undefined so Sentry CLI won't receive an invalid --release "".
-const sentryRelease =
-  process.env.SENTRY_RELEASE || process.env.GIT_COMMIT_SHA || undefined;
-
-export default isProduction
-  ? withSentryConfig(config, {
-      org: process.env.SENTRY_ORG,
-      project: process.env.SENTRY_PROJECT,
-      authToken: process.env.SENTRY_AUTH_TOKEN,
-      telemetry: false,
-
-      // Only print logs for uploading source maps in CI
-      silent: !process.env.CI,
-
-      // Upload a larger set of source maps for prettier stack traces (includes app router chunks)
-      widenClientFileUpload: true,
-
-      // Tie uploaded source maps to the deploy's git SHA so Debug IDs match at runtime.
-      // Only include release config when we actually have a value — passing an empty
-      // string causes the Sentry CLI to fail with "invalid value for --release".
-      ...(sentryRelease ? { release: { name: sentryRelease } } : {}),
-
-      // Delete source maps after upload so they aren't publicly accessible
-      sourcemaps: {
-        deleteSourcemapsAfterUpload: true,
-      },
-    })
-  : config;
+export default nextConfig;

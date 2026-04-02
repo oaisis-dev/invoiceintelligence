@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 212.656 75.557">
+  <!-- Generator: Adobe Illustrator 30.2.1, SVG Export Plug-In . SVG Version: 2.1.1 Build 1)  -->
+  <defs>
+    <mask id="mask" x="0" y="0" width="320" height="82" maskUnits="userSpaceOnUse">
+      <g id="sparkMask">
+        <rect width="320" height="82" fill="#fff"/>
+        <path d="M28,26c2,12,6,16,18,18-12,2-16,6-18,18-2-12-6-16-18-18,12-2,16-6,18-18Z"/>
+      </g>
+    </mask>
+  </defs>
+  <g mask="url(#mask)">
+    <g>
+      <path d="M4,10c0-3.866,3.134-7,7-7h23l18,18v45c0,3.866-3.134,7-7,7H11c-3.866,0-7-3.134-7-7V10Z" fill="#27653d"/>
+      <path d="M34,3v12c0,3.314,2.686,6,6,6h12L34,3Z" fill="#1e5030"/>
+    </g>
+  </g>
+  <text transform="translate(68 36)" fill="#27653d" font-family="Helvetica-Bold, Helvetica" font-size="28" font-weight="700" isolation="isolate" letter-spacing="-.028em"><tspan x="0" y="0">Invoice</tspan></text>
+  <text transform="translate(68 60)" fill="#27653d" font-family="Helvetica-Light, Helvetica" font-size="28" font-weight="300" isolation="isolate" letter-spacing="-.017em" opacity=".65"><tspan x="0" y="0">Intelligence</tspan></text>
+</svg>
